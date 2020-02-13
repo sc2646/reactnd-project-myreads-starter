@@ -23,7 +23,7 @@ class SearchBook extends Component {
       : books.filter(book => (
         book.title.toLowerCase().includes(query.toLowerCase())
       ))
-    // console.log(this.props)
+    console.log(this.props)
     return (
           <div className="search-books">
             <div className="search-books-bar">
@@ -59,8 +59,8 @@ class SearchBook extends Component {
                     className='book-cover'
                     style={{width: 128, height: 192, backgroundImage: `url(${book.imageLinks.thumbnail})`}}/>
                     <div className='book-details'>
-                      <p>{book.title}</p>
-                      <p>{book.categories}</p>
+                      <div className='book-title'>{book.title}</div>
+                      <div className='book-authors'>{book.authors}</div>
                     </div>
                   </li>
                   ))
