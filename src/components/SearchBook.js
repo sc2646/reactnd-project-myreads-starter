@@ -22,7 +22,7 @@ class SearchBook extends Component {
       : books.filter(book => (
         book.title.toLowerCase().includes(query.toLowerCase())
       ))
-    console.log(this.props)
+    // console.log(this.props)
     return (
           <div className="search-books">
             <div className="search-books-bar">
