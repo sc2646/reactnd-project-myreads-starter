@@ -9,6 +9,10 @@ This is MyReads project for Udacity’s React Nanodegree. You can select and cat
 * install all project dependencies with `npm install`
 * start the development server with `npm start`
 
+## Demo
+![Change bookshelves in main page](https://github.com/sc2646/reactnd-project-myreads-starter/blob/master/Screen%20Shot%202020-02-13%20at%201.24.29%20PM.png)
+![Search term and results](https://github.com/sc2646/reactnd-project-myreads-starter/blob/master/Screen%20Shot%202020-02-13%20at%201.24.49%20PM.png)
+
 ## Backend Server
 
 The provided file [`BooksAPI.js`](src/BooksAPI.js) contains the methods you will need to perform necessary operations on the backend:
