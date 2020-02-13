@@ -1,36 +1,97 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
+import * as BooksAPI from './../BooksAPI'
+import Book from './Book'
 
 class SearchBook extends Component {
   state = {
-    query: ''
+    query: '',
+    booksToShow: []
   }
 
   updateQuery = (query) => {
-    this.setState({ query: query.trim() })
+    if(query === '') {
+      this.setState({
+        query: '',
+        booksToShow: []
+      })
+      return
+    }
+    BooksAPI.search(query).then((bookResults) => {
+      this.updateBookSearchResult(bookResults)
+      if (bookResults !== undefined && bookResults.error !== 'empty query') {
+        this.setState({
+          query: query.trim(),
+          booksToShow: bookResults
+        })
+      } else {
+        this.setState({
+          query: query.trim(),
+          booksToShow: []
+        })
+      }
+    })
   }
 
+  updateBookSearchResult = (books) => {
+    if(books !== undefined && books.error !== "empty query") {
+            // since the search method does not return proper shelf we need to iterate over our current
+            // states and the new search terms to find what the current shelf state is for each book
+            let bookIds = books.map(book => book.id);
+            // let currentlyReadingIntersect = this.intersect(bookIds, this.state.currentlyReading.map( cr => cr.id));
+            let currentlyReadingIntersect = this.intersect(bookIds, this.props.books.filter((cr) => cr.shelf === 'currentlyReading').map(b => b.id));
+            let readIntersects = this.intersect(bookIds, this.props.books.filter(r => r.shelf === 'read').map((b) => b.id));
+            let wantToReadIntersects = this.intersect(bookIds, this.props.books.filter((wr) => wr.shelf === 'wantToRead').map((b) => b.id));
+
+            for (let i = 0; i < books.length; i++) {
+                if (currentlyReadingIntersect.includes(books[i].id)) {
+                    books[i].shelf = 'currentlyReading';
+                }
+                if (readIntersects.includes(books[i].id)) {
+                    books[i].shelf = 'read';
+                }
+                if (wantToReadIntersects.includes(books[i].id)) {
+                    books[i].shelf = 'wantToRead';
+                }
+            }
+        }
+  }
+
+  intersect = (a, b) => {
+        let t;
+        if (b.length > a.length) {
+            t = b;
+            b = a;
+            a = t; // indexOf to loop over shorter
+        }
+        return a.filter(function (e) {
+            return b.indexOf(e) > -1;
+        });
+    }
+
   clearQuery = () => {
-    this.setState({ query: '' })
+    this.setState({
+      query: '',
+      booksToShow: [] })
   }
 
   render() {
-    const { query } = this.state
-    const { books } = this.props
+    const { query, booksToShow } = this.state
+    const { books, onShelfChange } = this.props
 
-    const showingBooks = query === ''
-      ? books
-      : books.filter(book => (
-        book.title.toLowerCase().includes(query.toLowerCase())
-      ))
-    console.log(this.props)
+    // const showingBooks = query === ''
+    //   ? books
+    //   : BooksAPI.search(query).then()
+
     return (
           <div className="search-books">
             <div className="search-books-bar">
               <Link
                 to='/'
                 className='list-book'>
-                <button className="close-search">Close</button>
+                <button
+                  className="close-search"
+                  onClick={this.clearQuery}>Close</button>
               </Link>
               <div className="search-books-input-wrapper">
                 {/*
@@ -52,19 +113,16 @@ class SearchBook extends Component {
               </div>
             </div>
             <div className="search-books-results">
+              {console.log(query)}
               <ol className="books-grid">
-                {showingBooks.map(book => (
-                  <li key={book.id} className='book-list-item'>
-                  <div
-                    className='book-cover'
-                    style={{width: 128, height: 192, backgroundImage: `url(${book.imageLinks.thumbnail})`}}/>
-                    <div className='book-details'>
-                      <div className='book-title'>{book.title}</div>
-                      <div className='book-authors'>{book.authors}</div>
-                    </div>
+                {this.state.booksToShow.map(book => (
+                  <li key={book.id}>
+                    <Book
+                      id={book.id}
+                      book={book}
+                      onCategoryChanged={this.props.onShelfChange} />
                   </li>
-                  ))
-                }
+                ))}
               </ol>
             </div>
           </div>
